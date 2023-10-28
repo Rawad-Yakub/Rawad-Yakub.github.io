@@ -16,6 +16,7 @@ const Debits = (props) => {
       return <li key={debit.id}>{debit.amount} {debit.description} {date}</li>
     });
   }
+
   // Render the list of Debit items and a form to input new Debit item
   return (
     <div>
