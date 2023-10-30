@@ -4,27 +4,31 @@ src/components/Credits.js
 The Credits component contains information for Credits page view.
 Note: You need to work on this file for the Assignment.
 ==================================================*/
-import {Link} from 'react-router-dom';
-import AccountBalance from './AccountBalance'
-
+import React from 'react';
+import { Link } from 'react-router-dom';
+import AccountBalance from './AccountBalance';
 
 const Credits = (props) => {
-  // Create the list of Debit items
+  // Create the list of Credit items
   let creditsView = () => {
     const { credits } = props;
-    return credits.map((credit) => {  // Extract "id", "amount", "description" and "date" properties of each debits JSON array element
-      let date = credit.date.slice(0,10);
-      return <li key={credit.id}>{credit.amount} {credit.description} {date}</li>
+    return credits.map((credit) => {
+      let date = credit.date.slice(0, 10);
+      // Use a combination of id and date as the key to ensure uniqueness
+      return <li key={`${credit.id}-${date}`}>{credit.amount} {credit.description} {date}</li>;
     });
-  }
+  };
 
-  // Render the list of Debit items and a form to input new Debit item
+  // Render the list of Credit items and a form to input new Credit item
   return (
     <div>
       <h1>Credits</h1>
       {creditsView()}
 
-      <form onSubmit={props.addCredit}>
+      <form onSubmit={(event) => {
+        event.preventDefault();
+        props.addCredit(event); // Call the addCredit function from props
+      }}>
         <input type="text" name="description" />
         <input type="number" name="amount" />
         <button type="submit">Add Credit</button>
