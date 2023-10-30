@@ -20,6 +20,7 @@ class App extends Component {
     super();
     this.state = {
       debitID : 1,
+      creditID : 1,
       accountBalance: 1234567.89,
       totalCredits : 0,
       totalDebits : 0,
@@ -41,15 +42,35 @@ class App extends Component {
 
   async componentDidMount(){
     let linkToDebitAPI = "https://johnnylaicode.github.io/api/debits.json"
+    let linkToCreditAPI ="https://johnnylaicode.github.io/api/credits.json"
 
     try{
       let response = await axios.get(linkToDebitAPI);
+      let response_part_two = await axios.get(linkToCreditAPI)
       for(var key in response.data){
         if(response.data.hasOwnProperty(key)) {
           let newEntry = {"id": this.state.debitID, "description" : response.data[key].description, "amount" : response.data[key].amount, "date": response.data[key].date};
           this.state.debitList.push(newEntry);
           this.setState({totalDebits: this.state.totalDebits + response.data[key].amount})
           this.setState({debitID: this.state.debitID + 1});
+        }
+      }
+    }
+    catch(error){
+      if (error.response){
+        console.log(error.response.data);
+        console.log(error.response.status);
+      }
+    }
+
+    try{
+      let response = await axios.get(linkToCreditAPI)
+      for(var key in response.data){
+        if(response.data.hasOwnProperty(key)) {
+          let newEntry = {"id": this.state.creditID, "description" : response.data[key].description, "amount" : response.data[key].amount, "date": response.data[key].date};
+          this.state.creditList.push(newEntry);
+          this.setState({totalCredits: this.state.totalCredits + response.data[key].amount})
+          this.setState({creditID: this.state.creditID + 1});
         }
       }
     }
@@ -72,6 +93,15 @@ class App extends Component {
     console.log(this.state.totalDebits);
   }
 
+  addCredit = (event) => {
+    event.preventDefault();
+    const date = new Date().toJSON().slice(0, 10);
+    let newEntry = {"id": this.state.creditID, "description" : event.target.elements.description.value, "amount" : event.target.elements.amount.value, "date":date};
+    this.state.creditList.push(newEntry);
+    this.setState({totalCredits: this.state.totalCredits + parseInt(event.target.elements.amount.value)})
+    this.setState({creditID: this.state.creditID + 1});
+  }
+
   // Create Routes and React elements to be rendered using React components
   render() {
     // Create React elements and pass input props to components
@@ -80,7 +110,7 @@ class App extends Component {
       <UserProfile userName={this.state.currentUser.userName} memberSince={this.state.currentUser.memberSince} />
     )
     const LogInComponent = () => (<LogIn user={this.state.currentUser} mockLogIn={this.mockLogIn} />)
-    const CreditsComponent = () => (<Credits credits={this.state.creditList} />)
+    const CreditsComponent = () => (<Credits credits={this.state.creditList} accountBalance={this.state.accountBalance} addCredit={this.addCredit} />)
     const DebitsComponent = () => (<Debits debits={this.state.debitList} accountBalance={this.state.accountBalance} addDebit={this.addDebit} />)
 
     // Important: Include the "basename" in Router, which is needed for deploying the React app to GitHub Pages
